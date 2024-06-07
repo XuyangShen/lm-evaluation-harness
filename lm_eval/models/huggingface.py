@@ -383,15 +383,20 @@ class HFLM(TemplateLM):
     @property
     def max_length(self):
         if self._max_length:  # if max length manually set, return it
+            print('max-length set:', self._max_length)
             return self._max_length
-        seqlen_config_attrs = ("n_positions", "max_position_embeddings", "n_ctx")
+        seqlen_config_attrs = ("n_positions", "max_position_embeddings", "n_ctx", "max_target_positions")
         for attr in seqlen_config_attrs:
             if hasattr(self.model.config, attr):
+                print('max-length detect by model config:', getattr(self.model.config, attr))
                 return getattr(self.model.config, attr)
         if hasattr(self.tokenizer, "model_max_length"):
             if self.tokenizer.model_max_length == 1000000000000000019884624838656:
+                print('max-length by default:', self._DEFAULT_MAX_LENGTH)
                 return self._DEFAULT_MAX_LENGTH
+            print('max-length detect by tokenizer config:', self.tokenizer.model_max_length)
             return self.tokenizer.model_max_length
+        print('max-length by default:', self._DEFAULT_MAX_LENGTH)
         return self._DEFAULT_MAX_LENGTH
 
     @property

@@ -31,6 +31,9 @@ from lm_eval.utils import (
     simple_parse_args_string,
 )
 
+from collections.abc import Generator
+
+
 
 if TYPE_CHECKING:
     from lm_eval.api.model import LM
@@ -593,10 +596,10 @@ def evaluate(
             "n-shot": dict(sorted(num_fewshot.items())),
             "n-samples": {
                 task_output.task_name: {
-                    "original": len(task_output.task.eval_docs),
+                    "original": len(list(task_output.task.eval_docs)) if isinstance(task_output.task.eval_docs, Generator) else len(task_output.task.eval_docs),
                     "effective": min(
-                        limit if limit else len(task_output.task.eval_docs),
-                        len(task_output.task.eval_docs),
+                        limit if limit else (len(list(task_output.task.eval_docs)) if isinstance(task_output.task.eval_docs, Generator) else len(task_output.task.eval_docs)),
+                        len(list(task_output.task.eval_docs)) if isinstance(task_output.task.eval_docs, Generator) else len(task_output.task.eval_docs),
                     ),
                 }
                 for task_output in eval_tasks

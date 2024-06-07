@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from lm_eval.api import metrics
 from lm_eval.utils import eval_logger, positional_deprecated
 
+from collections.abc import Generator
 
 class TaskOutput:
     """
@@ -146,13 +147,17 @@ def print_writeout(task) -> None:
             eval_logger.info(f"Request: {str(inst)}")
 
 
+# def get_sample_size(task, limit: Optional[int]) -> Union[int, None]:
+#     if limit is not None:
+#         limit = (
+#             int(math.ceil(len(task.eval_docs) * limit)) if limit < 1.0 else int(limit)
+#         )
+#     return limit
 def get_sample_size(task, limit: Optional[int]) -> Union[int, None]:
     if limit is not None:
-        limit = (
-            int(math.ceil(len(task.eval_docs) * limit)) if limit < 1.0 else int(limit)
-        )
+        eval_docs_length = len(list(task.eval_docs)) if isinstance(task.eval_docs, Generator) else len(task.eval_docs)
+        limit = int(math.ceil(eval_docs_length * limit)) if limit < 1.0 else int(limit)
     return limit
-
 
 def prepare_print_tasks(
     task_hierarchy: dict, results: dict, tab=0
